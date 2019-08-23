@@ -1,0 +1,162 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>日志收集</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.6 -->
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+
+
+</head>
+<body class="hold-transition skin-blue sidebar-mini" style="background-color: aliceblue">
+
+<div style="position: relative;top: 50px;width: 70%;left: 15%">
+
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#timeModal" id="new-add"
+            style="position: relative;left: 92%">新增+
+    </button>
+
+    <table class="table table-hover table-bordered" style="position: relative;top: 10px">
+        <tr>
+            <th style="text-align: center">项目名称</th>
+            <th style="text-align: center">Topic</th>
+            <th style="text-align: center">日志路径</th>
+            <th style="text-align: center">创建时间</th>
+            <th style="text-align: center">状态</th>
+            <th style="text-align: center">操作</th>
+
+
+        </tr>
+        <tbody>
+        {% for loginfo in loginfos %}
+            <tr>
+                <td style="width: 10%;text-align: center;vertical-align: middle"
+                    id="service_name">{{ loginfo.service_name }}</td>
+                <td style="width: 10%;text-align: center;vertical-align: middle" id="topic">{{ loginfo.topic }}</td>
+                <td style="width:40%;text-align: center;vertical-align: middle"
+                    id="log_path">{{ loginfo.log_path }}</td>
+                <td style="width: 15%;text-align: center;vertical-align: middle"
+                    id="create_time">{{ loginfo.create_time }}</td>
+                <td style="width: 10%;text-align: center;vertical-align: middle"
+                    id="create_time">{{ loginfo.get_status_display }}</td>
+                <td style="width: 15%;text-align: center;vertical-align: middle" id="action1" taskid="{{ loginfo.task_id }}">
+                    <a type="button" class="btn" id="resettask" >重置任务</a> <a type="button" class="btn" id="deletetask">删除</a>
+                </td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+
+    </table>
+
+</div>
+
+<div class="modal fade" id="timeModal" role="dialog" aria-labelledby="timeModalLabel">
+    <div class="modal-dialog" style="width: 50%" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="timeModalLabel">Modal title</h4>
+            </div>
+
+
+            <form class="form-horizontal" style="position: relative;top: 10px;width: 90%">
+                <div class="form-group">
+                    <label for="inputEmail3" class="col-sm-3 control-label">Service Name</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="serviceName" placeholder="Service Name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword3" class="col-sm-3 control-label">Topic</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="mytopic" placeholder="Topic">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword3" class="col-sm-3 control-label">Log Path</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="logPath" placeholder="Log Path">
+                    </div>
+                </div>
+            </form>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="addaction">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- jQuery 2.2.3 -->
+<script src="{% static 'js/jquery-2.2.3.min.js' %}"></script>
+<!-- Bootstrap 3.3.6 -->
+<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+
+</body>
+</html>
+<script>
+    $(function () {
+
+        $('#addaction').click(function () {
+            serviceName=$('#serviceName').val()
+            topic=$('#mytopic').val()
+            console.log(topic)
+            logPath=$('#logPath').val()
+            request_data = {
+                "serviceName": serviceName,
+                "topic": topic,
+                "logPath": logPath,
+            }
+            $.get('addlog/', request_data, function (response) {
+                console.log(response)
+                $('#timeModal').hide()
+                window.location.reload()
+            })
+        })
+
+
+        $('#action').click(function () {
+            request_data = {
+                "data":1,
+            }
+
+            $.get('getstat/',request_data,function (response) {
+                console.log(response)
+            })
+        })
+
+        $(document).on('click','#resettask',function () {
+            taskid=$(this).parent().attr("taskid")
+            {#console.log(taskid)#}
+            request_data={
+                "taskid":taskid,
+            }
+            $.get('resettask/',request_data,function (response) {
+                console.log(response)
+                window.location.reload()
+            })
+        })
+
+        $(document).on('click','#deletetask',function () {
+            taskid=$(this).parent().attr("taskid")
+            {#console.log(taskid)#}
+            request_data={
+                "taskid":taskid,
+            }
+            $.get('deletetask/',request_data,function (response) {
+                console.log(response)
+                window.location.reload()
+            })
+        })
+
+    })
+</script>
